@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from assignment.models import TransactionType
+from assignment.trader.models import TransactionType
 
 
 class TraderBase(BaseModel):
