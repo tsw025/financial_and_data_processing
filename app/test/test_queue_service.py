@@ -58,50 +58,49 @@ def sample_traders():
     return traders
 
 
-async def test_create_trade(client):
-    trader_data = {
-        "name": "trader one",
-        "transaction_type": "buy",
-        "assetType": "stock",
-        "assetValue": 100.0,
-        "quantity": 10,
-    }
+class TestTraderQueue:
+    async def test_create_trade(self, client):
+        trader_data = {
+            "name": "trader one",
+            "transaction_type": "buy",
+            "assetType": "stock",
+            "assetValue": 100.0,
+            "quantity": 10,
+        }
 
-    response = await client.post("/trader-queue", json=trader_data)
-    print (response.json())
+        response = await client.post("/trader-queue", json=trader_data)
+        print(response.json())
 
-    assert response.status_code == 201
-    assert "id" in response.json()
-    assert response.json()["transaction_type"] == trader_data["transaction_type"]
-    assert response.json()["assetType"] == trader_data["assetType"]
-    assert response.json()["assetValue"] == trader_data["assetValue"]
-    assert response.json()["quantity"] == trader_data["quantity"]
+        assert response.status_code == 201
+        assert "id" in response.json()
+        assert response.json()["transaction_type"] == trader_data["transaction_type"]
+        assert response.json()["assetType"] == trader_data["assetType"]
+        assert response.json()["assetValue"] == trader_data["assetValue"]
+        assert response.json()["quantity"] == trader_data["quantity"]
 
+    async def test_get_errors_count(self, client):
+        response = await client.get("/trader-queue/errors/count")
+        assert response.status_code == 200
+        assert response.json() == 0
 
-async def test_get_errors_count(client):
-    response = await client.get("/trader-queue/errors/count")
-    assert response.status_code == 200
-    assert response.json() == 0
+    async def test_create_trade_with_invalid_that_contain_invalid_data(self, client, sample_traders):
+        for trader in sample_traders:
+            response = await client.post("/trader-queue", json=trader.model_dump(exclude_unset=True))
 
+        response = await client.post("/trader/analyse")
+        response = await client.get("/trader-queue/errors/count")
+        assert response.status_code == 200
+        assert response.json() == 1
 
-async def test_create_trade_with_invalid_that_contain_invalid_data(client, sample_traders):
-    for trader in sample_traders:
-        response = await client.post("/trader-queue", json=trader.model_dump(exclude_unset=True))
+    async def test_start_analysis(self, client, sample_traders):
+        for trader_req in sample_traders:
+            await client.post("/trader-queue", json=trader_req.model_dump(exclude_unset=True))
 
-    response = await client.get("/trader-queue/errors/count")
-    assert response.status_code == 200
-    assert response.json() == 1
+        response = await client.post("/trader/analyse")
 
-
-async def test_start_analysis(client, sample_traders):
-    for trader_req in sample_traders:
-        await client.post("/trader-queue", json=trader_req.dict())
-
-    response = await client.post("/trader/analyse")
-
-    assert response.status_code == 200
-    data = response.json()
-    assert data['highest_trader']['name'] == "trader seven"
-    assert data['lowest_trader']['name'] == "trader one"
-    assert data["most_frequently_traded_asset_type"] == "stock"
-    assert data["average_value_of_assets_traded"] == 196.67
+        assert response.status_code == 200
+        data = response.json()
+        assert data['highest_trader']['name'] == "trader seven"
+        assert data['lowest_trader']['name'] == "trader one"
+        assert data["most_frequently_traded_asset_type"] == "stock"
+        assert data["average_value_of_assets_traded"] == 196.67

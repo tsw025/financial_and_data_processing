@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  db:
+    image: 'postgres:12.5-alpine'
+    container_name: ${APPLICATION_NAME}_db
+    env_file:
+      - .env.test
+    ports:
+      - '5432:5432'
+
+  # run and exit
+  app:
+    image: "${IMAGE_NAME}"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    env_file:
+      - .env.test
+    entrypoint: pytest -vv
+    depends_on:
+      - db
