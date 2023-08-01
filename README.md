@@ -83,6 +83,7 @@ During the assignment, I faced challenges with the following:
    Implement the following methods for data analysis:' I was not sure if I need to dequeue all the traders and then analyze the data or 
    I need to analyze the data as I dequeue the traders and keep all the traders appending to a list.
  - Setting up application and testing, took a lot of time than expected.
+ - If had more time would design more abstractions or use protocols to make the code more generic.
 
 
 # How to run the code.
