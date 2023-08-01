@@ -1,4 +1,6 @@
-from pydantic import Field
+from typing import Any
+
+from pydantic import Field, BaseModel
 
 from assignment.trader.models import TransactionType
 from core.schema import base as base_schema
@@ -24,3 +26,11 @@ class TraderResponse(base_schema.OrmBase, TraderBase, base_schema.Timestamp):
 
 class TraderRequest(TraderBase):
     pass
+
+
+class TraderRequestWithoutValidation(TraderRequest):
+    transaction_type: Any
+    assetType: Any
+    assetValue: Any
+    quantity: Any
+    name: Any

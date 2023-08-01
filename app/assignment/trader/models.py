@@ -1,6 +1,6 @@
 from enum import Enum
 
-from sqlalchemy import String, Float, Integer
+from sqlalchemy import String, Float, Integer, JSON
 from core.models import Base
 from core.models.mixins import PersonMixin, NotNullableColumn, PrimaryKeyColumn, TimestampMixin
 from core.models.models import EnumValueType
@@ -21,3 +21,11 @@ class Trader(Base[int], PersonMixin, TimestampMixin):
     assetType = NotNullableColumn(String(50))
     assetValue = NotNullableColumn(Float)
     quantity = NotNullableColumn(Integer)
+
+
+class TraderRequestErrors(Base[int], TimestampMixin):
+    """
+    Errors are stored in json format in the database.
+    """
+    id = PrimaryKeyColumn()
+    error = NotNullableColumn(JSON)
