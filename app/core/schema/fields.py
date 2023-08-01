@@ -1,6 +1,9 @@
+import re
 from typing import Any
 
 from pydantic.validators import str_validator
+
+NAME_PATTERN = r"^[A-Za-z ]+$"
 
 
 class NameField(str):
@@ -33,7 +36,7 @@ class NameField(str):
         if not value:
             raise ValueError("required a valid NameField.")
 
-        if not value.replace(" ", "").isalpha():
+        if not re.match(NAME_PATTERN, value):
             raise ValueError("Name must only contain letters and spaces.")
 
         return value
