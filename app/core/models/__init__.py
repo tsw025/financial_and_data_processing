@@ -1,3 +1,3 @@
 from .models import Base
-from .mixins import Timestamp, NotNullableColumn, PrimaryKeyColumn
+from .mixins import TimestampMixin, NotNullableColumn, PrimaryKeyColumn
 from assignment.trader.models import *

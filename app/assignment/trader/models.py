@@ -2,7 +2,7 @@ from enum import Enum
 
 from sqlalchemy import String, Float, Integer
 from core.models import Base
-from core.models.mixins import PersonMixin, NotNullableColumn, PrimaryKeyColumn
+from core.models.mixins import PersonMixin, NotNullableColumn, PrimaryKeyColumn, TimestampMixin
 from core.models.models import EnumValueType
 
 
@@ -11,7 +11,7 @@ class TransactionType(str, Enum):
     sell = "sell"
 
 
-class Trader(Base[int], PersonMixin):
+class Trader(Base[int], PersonMixin, TimestampMixin):
     """
     create a Trader class that inherits from the Person class.
     It should have the following additional attributes: transactionType, assetType, assetValue, and quantity
