@@ -8,7 +8,7 @@ for the created_at and updated_at columns.
 """
 from typing import Generic, TypeVar
 
-from sqlalchemy import DATETIME, MetaData
+from sqlalchemy import DATETIME, MetaData, types
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.ext.declarative import as_declarative, declared_attr, declarative_base
 from sqlalchemy.sql import functions
@@ -68,3 +68,43 @@ def pg_utc_now(element, compiler, **kwargs):
 def sqlite_utc_now(element, compiler, **kwargs):
     """Returns utc timestamp statement sqlite."""
     return "datetime('now')"
+
+
+# configure EnumValueType
+class EnumValueType(types.TypeDecorator):
+    """Enum SqlAlchemy Type."""
+
+    impl = types.String()
+    cache_ok = True
+
+    def __init__(self, enum, *args, **kwargs):
+        """Init."""
+        self.enum = enum
+        super().__init__(*args, **kwargs)
+
+    def process_bind_param(self, value, _):
+        """
+        Process bind param.
+
+        This method is called when a value is being inserted or updated.
+        The value is saved as the enum value.
+
+        """
+        if value is None:
+            return value
+
+        if isinstance(value, self.enum):
+            return value.value
+
+        return value
+
+    def process_result_value(self, value, _):
+        """Process result value."""
+        if value is None:
+            return value
+
+        return self.enum(value)
+
+    def copy(self, **kw):
+        """Copy."""
+        return EnumValueType(self.enum, **kw)

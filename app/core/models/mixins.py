@@ -1,7 +1,7 @@
 import datetime
 from typing import Type
 
-from sqlalchemy import Column, DateTime, Integer
+from sqlalchemy import Column, DateTime, Integer, String
 from functools import partial
 from sqlalchemy.orm import declarative_mixin
 
@@ -25,3 +25,8 @@ def set_primary_key(**kwargs):
 
 PrimaryKeyColumn = set_primary_key
 NotNullableColumn: Type[Column] = partial(Column, nullable=False)
+
+
+@declarative_mixin
+class PersonMixin:
+    name = NotNullableColumn(String(50))
