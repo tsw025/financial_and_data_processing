@@ -35,3 +35,10 @@ def analyse(
         service: DataAnalyserQueueService = Depends(),
 ):
     return service.start_analysis()
+
+
+@router.get("-queue/errors/count", status_code=status.HTTP_200_OK, response_model=int)
+async def get_errors_count(
+        service: DataAnalyserQueueService = Depends(),
+):
+    return await service.get_errors_count()

@@ -1,20 +1,50 @@
 from pydantic_core._pydantic_core import ValidationError
 from fastapi import Depends
-from queue import Queue
 
 from assignment.trader.exceptions import TraderServiceValidationException
 from assignment.trader.models import TraderRequestErrors
 from assignment.trader.repository import TraderRequestErrorsRepository
 from assignment.trader import schema as trader_schema
 
-queue = Queue()
+from queue import Queue
+
+
+class SingletonQueue:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(SingletonQueue, cls).__new__(cls)
+            cls._instance.queue = Queue()
+        return cls._instance
+
+    def put(self, item):
+        self.queue.put(item)
+
+    def get(self):
+        return self.queue.get()
+
+    def empty(self):
+        return self.queue.empty()
+
+    def qsize(self):
+        return self.queue.qsize()
+
+    def task_done(self):
+        return self.queue.task_done()
+
+    def join(self):
+        return self.queue.join()
 
 
 class DataAnalyserQueueService:
 
     def __init__(self,
-                 trader_req_errors_repo: TraderRequestErrorsRepository = Depends()):
+                 queue: Queue = Depends(SingletonQueue),
+                 trader_req_errors_repo: TraderRequestErrorsRepository = Depends(),
+                 ):
         self.trader_req_errors_repo = trader_req_errors_repo
+        self.queue = queue
         # Assuming that traders get reset after every request
         self.trader_list = []
 
@@ -30,15 +60,15 @@ class DataAnalyserQueueService:
             await self.trader_req_errors_repo.commit()
             raise TraderServiceValidationException(e.errors())
 
-        queue.put(trader_req)
+        self.queue.put(trader_req)
         return trader_schema.TraderResponse(**trader_req.model_dump(exclude_unset=True))
 
     async def get_errors_count(self) -> int:
         return await self.trader_req_errors_repo.count()
 
     def set_traders(self):
-        while not queue.empty():
-            trader = queue.get()
+        while not self.queue.empty():
+            trader = self.queue.get()
             self.trader_list.append(trader)
 
     def get_highest_total_asset_value_trader(self):
@@ -72,7 +102,7 @@ class DataAnalyserQueueService:
         if not self.trader_list:
             yield 0
         average_value_of_assets_traded = total_asset_value / len(self.trader_list)
-        yield average_value_of_assets_traded
+        yield round(average_value_of_assets_traded, 2)
 
     def start_analysis(self) -> trader_schema.DataAnalyserResponse:
         # Assuming that the queue is filled with traders,
