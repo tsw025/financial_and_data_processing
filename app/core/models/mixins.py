@@ -9,11 +9,11 @@ from .models import utc_now
 
 
 @declarative_mixin
-class Timestamp:
+class TimestampMixin:
     """Adds `created` and `updated` columns to a derived declarative model."""
 
-    created_at: datetime = Column(DateTime, default=None, server_default=utc_now())
-    updated_at: datetime = Column(
+    created_at = Column(DateTime, default=None, server_default=utc_now())
+    updated_at = Column(
         DateTime, default=None, server_default=utc_now(), onupdate=utc_now()
     )
 
