@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -20,5 +21,5 @@ class Person(BaseModel):
 
 
 class Timestamp(BaseModel):
-    created_at: datetime = Field(readOnly=True)
-    updated_at: datetime = Field(readOnly=True)
+    created_at: Optional[datetime] = Field(readOnly=True, default=None)
+    updated_at: Optional[datetime] = Field(readOnly=True, default=None)

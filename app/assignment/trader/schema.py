@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import Field, BaseModel
 
@@ -21,7 +21,7 @@ class TraderBase(base_schema.Person):
 
 
 class TraderResponse(base_schema.OrmBase, TraderBase, base_schema.Timestamp):
-    id: int
+    id: Optional[int] = Field(default=None)
 
 
 class TraderRequest(TraderBase):
@@ -34,3 +34,10 @@ class TraderRequestWithoutValidation(TraderRequest):
     assetValue: Any
     quantity: Any
     name: Any
+
+
+class DataAnalyserResponse(BaseModel):
+    highest_trader: TraderBase | None
+    lowest_trader: TraderBase | None
+    most_frequently_traded_asset_type: str | None
+    average_value_of_assets_traded: float = Field(default=0.0)
