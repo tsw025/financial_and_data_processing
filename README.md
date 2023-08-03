@@ -100,3 +100,7 @@ Steps:
 4. try out the trader-queue, and analysis endpoints.
 5. To run the tests, run the following command. (Note: you will have to run the 2. step before running the tests)
    docker-compose -f docker-compose-override-test.yaml up --build
+
+
+## Architecture and Flow.
+![Architecture and Flow](app/assets/Assignment.jpg)
